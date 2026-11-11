@@ -1,0 +1,53 @@
+# Japan EU Parcel Check
+
+> Free, unofficial checklist for sending parcels from Japan to the EU by Japan Post after the 2026 EU rules. Sold items (B2C: the sender is the seller, individual or company — online shop, flea-market app, auction): ≤ €150 → €3 temporary customs duty + €2 Union handling fee (UHF) per item, plus VAT; > €150 → EU common tariff + €2 per item. Japan Post's 2026-11-09 table sets per destination which routes it accepts: IOSS + DDP (sender prepays via Zonos's app), IOSS + DAP (buyer pays), no IOSS (DAP). Germany: no B2C mail at all from 2026-11-09. PID (SKU + maker part no.) required in principle for B2C ≤ €150 from 2026-11-01 (DAP exempt for now). Personal gifts (C2C): ≤ €45 duty-exempt, no €2 fee. Rules as of 2026-11-11. Educational, not advice; not affiliated with Japan Post, Zonos or the EU. VAT is not computed.
+
+Site: https://japan-eu-parcel.vercel.app
+
+## Key facts (official sources below)
+- Japan Post 1109_01 (続報6, 2026-11-09): B2C ≤ €45 and €45–€150: duty €3 + UHF €2; > €150: EU common tariff + UHF €2. C2C gifts: ≤ €45 exempt, > €45 common tariff. B2B etc.: common tariff. Charged per contents item (not per HS code). 32 destinations (27 EU + Guadeloupe, French Guiana, Martinique, Réunion, Monaco).
+- Per-country table (IOSS DDP / IOSS DAP / no IOSS): both DDP+DAP with IOSS: IT, EE, NL, ES, SK, MT. DDP only: GP, SE, DK, FI, FR, GF, BE, MQ, MC, LU, RE. DAP only: IE, CY, GR, HR, SI, HU, BG, PL, LV, LT, RO. Neither (no-IOSS DAP only): AT, CZ, PT. Germany: × × ×.
+- Japan Post 1104_01: from 2026-11-09 Germany, all mail types: B2C (online sales) mail cannot be posted.
+- UGX courier offered where DDP by post is not possible, except Cyprus and Greece; UGX (通常) stopped for Europe from 2026-10-30 (UGXプライム / UGX越境EC配送サービス remain; contract needed).
+- European Commission guidance (5 Oct 2026): €3 duty per item for consignments ≤ €150 from 2026-07-01 until 2028-07-01 (Reg. (EU) 2026/382; extension assessed by 2027-12-01). UHF €2 per item for distance sales at any value, not temporary, non-refundable, part of the VAT base. Item = goods with the same tariff classification and description (and origin), charged per declaration line whatever the quantity.
+- Not covered: VAT amounts, normal duty rates, courier / Zonos / La Poste fees, service suspensions per country (check 差出可否早見表), non-EU destinations (UK, Switzerland, Norway…).
+
+## API (free, no key, CORS open)
+
+### GET
+GET https://japan-eu-parcel.vercel.app/api/check?country=FR&kind=sale&valueEUR=60&itemLines=2&shipDate=2026-11-11
+→ verdict "can_post", route.id "no_ioss_dap", charges {dutyEUR 6, uhfEUR 4, knownTotalEUR 10}, pid.required true, routes [ioss_ddp 〇, ioss_dap ×, no_ioss_dap 〇], sources, disclaimer
+
+### POST
+POST https://japan-eu-parcel.vercel.app/api/check
+{"country":"Germany","kind":"sale","valueEUR":40,"shipDate":"2026-11-11"}
+→ verdict "cannot_post", alternatives [courier, UGX, gift note]
+
+Parameters: country (required; ISO code, English or Japanese name), kind (sale | gift | b2b; default sale), valueEUR (or valueJPY + eurJpy), itemLines (default 1), ioss (sale), payment (ddp | dap, with IOSS), shipDate (YYYY-MM-DD, from 2026-11-09). Aliases accepted (ドイツ, 通販, 贈り物, b2c, c2c…).
+
+Verdicts: can_post | can_post_other_route | cannot_post.
+
+Bad input → 400 {error, docs, example, disclaimer}.
+
+### Other endpoints
+- GET https://japan-eu-parcel.vercel.app/api/rules
+- https://japan-eu-parcel.vercel.app/openapi.json
+- https://japan-eu-parcel.vercel.app/.well-known/ai-plugin.json
+- MCP: tool japan_eu_parcel_check on https://free-agent-tools.vercel.app/mcp
+
+## Official sources
+- https://www.post.japanpost.jp/service/send/oversea/information/2026/1109_01.html
+- https://www.post.japanpost.jp/service/send/oversea/information/2026/1104_01.html
+- https://www.post.japanpost.jp/service/send/oversea/information/2026/1022_01.html
+- https://www.post.japanpost.jp/service/send/oversea/information/overview.pdf
+- https://www.post.japanpost.jp/cgi-kokusai/index.php
+- https://taxation-customs.ec.europa.eu/customs/eu-customs-reform_en
+- https://taxation-customs.ec.europa.eu/document/download/053e5b4e-f0be-4f20-9a23-3e3b659a6676_en?filename=Customs+Guidance+on+EUR+3+customs+duty.pdf
+- https://www.consilium.europa.eu/en/policies/eu-action-influx-of-small-parcels/
+- https://www.revenue.ie/en/customs/individuals/union-handling-fee/index.aspx
+
+## Other free tools
+- https://japan-intl-postage.vercel.app — Japan Postage Calculator (Japan Post international rates, Feb 2027 revision)
+- https://japan-customs-allowance.vercel.app — Japan Customs Allowance
+- https://japan-tax-free-refund.vercel.app — Japan Tax-Free Refund
+- https://free-agent-tools.vercel.app — Free Agent Tools MCP
