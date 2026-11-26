@@ -3,6 +3,7 @@ import { Calculator } from "@/components/calculator";
 import { FaqSection, type FaqItem } from "@/components/faq-section";
 import { EXAMPLE_GET } from "@/lib/api";
 import { SOURCES } from "@/lib/euparcel";
+import { API_PAUSED_NOTE, isGithubPages, pagesSiteUrl, withBasePath } from "@/lib/hosting";
 import { EXAMPLE_GERMANY, EXAMPLE_GIFT, EXAMPLE_IOSS, EXAMPLE_SHARED, PUBLIC_URL, resultPath } from "@/lib/share";
 
 const title = "Sending a parcel from Japan to the EU in 2026: Japan Post routes, €3 + €2 per item, Germany ban (free checker)";
@@ -22,7 +23,7 @@ const webAppLd = {
   "@type": "WebApplication",
   name: "Japan EU Parcel Check",
   alternateName: ["EU 発送 関税 3ユーロ 手数料 2ユーロ", "日本郵便 ドイツ宛 BtoC 差出不可", "IOSS DDP DAP 国別 日本郵便", "Japan Post EU parcel €3 duty €2 handling fee"],
-  url: PUBLIC_URL,
+  url: isGithubPages ? pagesSiteUrl(PUBLIC_URL) : PUBLIC_URL,
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "Any",
   isAccessibleForFree: true,
@@ -58,7 +59,9 @@ const faq: FaqItem[] = [
   },
   {
     q: "Is there a free API or MCP tool for AI agents?",
-    a: `Yes. GET or POST ${PUBLIC_URL}${EXAMPLE_GET} (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_eu_parcel_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources and a disclaimer.`,
+    a: isGithubPages
+      ? API_PAUSED_NOTE
+      : `Yes. GET or POST ${PUBLIC_URL}${EXAMPLE_GET} (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_eu_parcel_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources and a disclaimer.`,
   },
   {
     q: "EUあてに荷物を送るといくらかかりますか？",
@@ -81,19 +84,19 @@ export default function HomePage() {
         </p>
         <p className="mt-3 text-sm text-muted">
           Examples:{" "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_SHARED)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_SHARED)}>
             2 items to France
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_GERMANY)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_GERMANY)}>
             online order to Germany
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_IOSS)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_IOSS)}>
             IOSS prepaid to Italy
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_GIFT)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_GIFT)}>
             gift to Germany
           </a>
         </p>
@@ -116,24 +119,34 @@ export default function HomePage() {
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-xs">
-          Agent docs:{" "}
-          <a className="underline" href="/llms.txt">
-            llms.txt
-          </a>
-          {" · "}
-          <a className="underline" href="/openapi.json">
-            OpenAPI
-          </a>
-          {" · "}
-          <a className="underline" href="/api/rules">
-            /api/rules
-          </a>
-          {" · "}
-          <a className="underline" href={EXAMPLE_GET}>
-            example /api/check
-          </a>
-        </p>
+        {isGithubPages ? (
+          <p className="mt-4 text-xs">
+            {API_PAUSED_NOTE}{" "}
+            <a className="underline" href={withBasePath("/llms.txt")}>
+              llms.txt
+            </a>{" "}
+            describes the checker and the API contract.
+          </p>
+        ) : (
+          <p className="mt-4 text-xs">
+            Agent docs:{" "}
+            <a className="underline" href="/llms.txt">
+              llms.txt
+            </a>
+            {" · "}
+            <a className="underline" href="/openapi.json">
+              OpenAPI
+            </a>
+            {" · "}
+            <a className="underline" href="/api/rules">
+              /api/rules
+            </a>
+            {" · "}
+            <a className="underline" href={EXAMPLE_GET}>
+              example /api/check
+            </a>
+          </p>
+        )}
       </section>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppLd) }} />

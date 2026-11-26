@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+export const dynamic = "force-static";
+
 export const alt = "Japan EU Parcel Check: Japan Post routes, €3 duty + €2 fee per item, Germany B2C ban";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
